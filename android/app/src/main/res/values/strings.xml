@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">遥显</string>
+    <string name="settings_title">连接服务器</string>
+    <string name="server_url">服务器地址</string>
+    <string name="server_url_hint">http://[2001:db8::1]:8080</string>
+    <string name="password">管理密码</string>
+    <string name="save">保存并连接</string>
+    <string name="open_settings">服务器设置</string>
+    <string name="empty_content">还没有内容。在手机上打开管理页，发布一张图片。</string>
+    <string name="poster_description">当前图片</string>
+    <string name="status_online">已连接</string>
+    <string name="status_connecting">正在连接</string>
+    <string name="status_reconnecting">正在重试</string>
+    <string name="status_auth">密码不正确</string>
+    <string name="status_need_config">还没填写服务器</string>
+    <string name="notif_channel">连接状态</string>
+    <string name="notif_channel_popup">新内容</string>
+    <string name="notif_connecting">正在连接服务器</string>
+    <string name="notif_online">已连接，等待新内容</string>
+    <string name="notif_reconnecting">连接中断，正在重试</string>
+    <string name="notif_auth_failed">密码不正确</string>
+    <string name="notif_popup_title">有新内容</string>
+    <string name="notif_popup_text">正在打开遥显</string>
+</resources>
