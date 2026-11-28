@@ -41,6 +41,7 @@ import androidx.tv.material3.Surface
 import com.tvdisplay.remote.R
 import com.tvdisplay.remote.logic.DisplayState
 import com.tvdisplay.remote.logic.LinkStatus
+import com.tvdisplay.remote.logic.isPublishedTextOnly
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -153,6 +154,13 @@ private fun DisplayScreen(onEdit: () -> Unit) {
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Fit,
             )
+        } else if (message?.isPublishedTextOnly() == true) {
+            Text(
+                message?.text.orEmpty(),
+                color = Ink,
+                fontSize = 42.sp,
+                modifier = Modifier.align(Alignment.Center).padding(48.dp),
+            )
         } else {
             Text(
                 stringResource(R.string.empty_content),
@@ -168,7 +176,7 @@ private fun DisplayScreen(onEdit: () -> Unit) {
             modifier = Modifier.align(Alignment.TopStart).padding(28.dp),
         )
         val caption = message?.text.orEmpty()
-        if (caption.isNotBlank()) {
+        if (caption.isNotBlank() && current != null) {
             Text(
                 caption,
                 color = Ink,

@@ -30,3 +30,10 @@ fun redactForLog(payload: String, password: String): String {
     if (password.isEmpty()) return payload
     return payload.replace(password, "***")
 }
+
+fun ContentMessage.isPublishedTextOnly(): Boolean =
+    revision > 0 && imageBase64.isNullOrBlank() && text.isNotBlank()
+
+fun ContentMessage.shouldShowUnpublishedPlaceholder(): Boolean =
+    imageBase64.isNullOrBlank() && text.isBlank()
+

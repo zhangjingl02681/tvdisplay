@@ -6,7 +6,7 @@ __pycache__/
 *.egg-info/
 .eggs/
 .env
-data/
+/data/
 android/.gradle/
 android/.idea/
 android/local.properties
