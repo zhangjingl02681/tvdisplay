@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}管理 · 遥显{% endblock %}
+{% block body %}
+  <div class="top">
+    <h1>遥显</h1>
+    <form method="post" action="/logout">
+      <button class="ghost" type="submit">退出登录</button>
+    </form>
+  </div>
+  <p class="lede">手机上选好图片或文字，电视上全屏显示。</p>
+
+  <section class="card">
+    <div class="status-line">
+      <strong>电视状态</strong>
+      <span id="tv-status" class="pill {{ 'on' if tv_online else 'off' }}">
+        <span class="dot"></span>
+        <span id="tv-status-text">{{ '在线' if tv_online else '离线' }}</span>
+      </span>
+    </div>
+    <p class="hint">同一时间只连一台电视。后打开的那台会替换先打开的。</p>
+  </section>
+
+  <section class="card">
+    <strong>当前内容</strong>
+    <div class="bezel" style="margin-top: 0.7rem">
+      {% if preview_url %}
+        <img src="{{ preview_url }}" alt="当前发布到电视的图片">
+        {% if content.text %}
+          <p class="caption">{{ content.text }}</p>
+        {% endif %}
+      {% elif content.text %}
+        <p class="caption">{{ content.text }}</p>
+      {% else %}
+        <p class="empty">尚未发布内容</p>
+      {% endif %}
+    </div>
+    <p class="hint">强制弹出：{{ '开' if content.force_popup else '关' }}。开着时，新内容到达会把电视上的遥显调到前台；关着时不抢焦点。</p>
+    <form method="post" action="/force-popup">
+      <input type="hidden" name="force_popup" value="{{ 'off' if content.force_popup else 'on' }}">
+      <button type="submit">{{ '关闭强制弹出' if content.force_popup else '开启强制弹出' }}</button>
+    </form>
+  </section>
+
+  <section class="card">
+    <strong>发布新内容</strong>
+    {% if error %}
+      <p class="error">{{ error }}</p>
+    {% endif %}
+    <form method="post" action="/content" enctype="multipart/form-data">
+      <label class="file">
+        图片
+        <input id="image" name="image" type="file" accept="image/jpeg,image/png">
+        <span id="file-name">选择 JPEG 或 PNG</span>
+      </label>
+      <p class="hint">JPEG 或 PNG，最大 10 MB。图片和文字至少填写一样。</p>
+      <label for="text">说明文字</label>
+      <textarea id="text" name="text" maxlength="4000" placeholder="可选。可以只发文字，或显示在图片下方。">{{ draft_text }}</textarea>
+      <label class="check">
+        <input type="checkbox" name="force_popup" value="on" {% if content.force_popup %}checked{% endif %}>
+        <span>新内容到达时强制弹出</span>
+      </label>
+      <button type="submit">发布到电视</button>
+    </form>
+  </section>
+  <script>
+    async function refreshTvStatus() {
+      const response = await fetch("/api/status", {headers: {Accept: "application/json"}});
+      if (!response.ok) return;
+      const data = await response.json();
+      const pill = document.getElementById("tv-status");
+      const text = document.getElementById("tv-status-text");
+      pill.className = data.tv_online ? "pill on" : "pill off";
+      text.textContent = data.tv_online ? "在线" : "离线";
+    }
+    const imageInput = document.getElementById("image");
+    imageInput.addEventListener("change", () => {
+      const file = imageInput.files && imageInput.files[0];
+      document.getElementById("file-name").textContent = file ? file.name : "选择 JPEG 或 PNG";
+    });
+    refreshTvStatus();
+    setInterval(refreshTvStatus, 3000);
+  </script>
+{% endblock %}

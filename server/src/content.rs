@@ -17,7 +17,7 @@ pub struct ContentValidationError {
     pub message: String,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct DisplayContent {
     pub text: String,
     pub force_popup: bool,

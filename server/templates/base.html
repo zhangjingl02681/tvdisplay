@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>{% block title %}遥显{% endblock %}</title>
+  <style>
+    :root {
+      --bg: #efe7dc;
+      --ink: #1c1814;
+      --muted: #5f564c;
+      --card: #fffdf8;
+      --line: #e4d8c8;
+      --green: #0b6b4a;
+      --green-ink: #08543a;
+      --green-soft: #e4f5ec;
+      --danger: #8f2d2a;
+      --danger-soft: #fdeeee;
+      --bezel: #16130f;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, #f7f1e6 0, transparent 28rem),
+        var(--bg);
+      font-family: "PingFang SC", "Hiragino Sans GB", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+      font-size: 16px;
+      line-height: 1.5;
+    }
+    .wrap { width: min(100%, 28rem); margin: 0 auto; padding: 1.25rem 1rem 3rem; }
+    h1 { margin: 0; font-size: 1.7rem; letter-spacing: 0.06em; }
+    .lede { margin: 0.3rem 0 1rem; color: var(--muted); }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 1rem;
+      margin: 0 0 0.85rem;
+    }
+    label { display: block; font-weight: 650; margin: 0.7rem 0 0.35rem; }
+    input[type="text"], input[type="password"], textarea {
+      width: 100%;
+      font: inherit;
+      padding: 0.75rem 0.8rem;
+      border-radius: 12px;
+      border: 1px solid #d5c7b4;
+      background: white;
+    }
+    textarea { min-height: 6rem; resize: vertical; }
+    button {
+      width: 100%;
+      margin-top: 0.9rem;
+      border: 0;
+      border-radius: 12px;
+      padding: 0.85rem 1rem;
+      font: inherit;
+      font-weight: 750;
+      background: var(--green);
+      color: white;
+    }
+    button.ghost {
+      width: auto;
+      margin: 0;
+      padding: 0.4rem 0.7rem;
+      background: transparent;
+      color: var(--ink);
+      border: 1px solid var(--line);
+    }
+    .top { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; }
+    .status-line { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      border-radius: 999px;
+      padding: 0.15rem 0.65rem;
+      font-weight: 750;
+    }
+    .pill.on { background: var(--green-soft); color: var(--green-ink); }
+    .pill.off { background: #ece4d8; color: var(--muted); }
+    .dot { width: 0.55rem; height: 0.55rem; border-radius: 50%; background: currentColor; }
+    .bezel {
+      background: var(--bezel);
+      color: white;
+      border-radius: 16px;
+      min-height: 11rem;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .bezel img { display: block; width: 100%; height: auto; }
+    .bezel .empty { margin: auto; padding: 2.2rem 1rem; color: #c9bfb2; text-align: center; }
+    .caption { margin: 0; padding: 0.8rem 1rem 1rem; font-size: 1.05rem; }
+    .error {
+      background: var(--danger-soft);
+      color: var(--danger);
+      border-radius: 12px;
+      padding: 0.7rem 0.8rem;
+      margin-bottom: 0.4rem;
+    }
+    .check { display: flex; gap: 0.65rem; align-items: flex-start; font-weight: 500; margin-top: 0.85rem; }
+    .check input { width: 1.25rem; height: 1.25rem; margin-top: 0.15rem; }
+    .hint { color: var(--muted); font-size: 0.92rem; margin: 0.35rem 0 0; }
+    .file { position: relative; display: block; font-weight: 500; }
+    .file input {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+    }
+    .file span {
+      display: block;
+      padding: 0.8rem 0.85rem;
+      border: 1px dashed #c9b79f;
+      border-radius: 12px;
+      background: white;
+    }
+    .meta { color: #d9d0c4; font-size: 0.92rem; padding: 0 1rem; }
+    @media (min-width: 840px) {
+      .wrap { width: min(100%, 42rem); padding-top: 2.5rem; }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    {% block body %}{% endblock %}
+  </main>
+</body>
+</html>
