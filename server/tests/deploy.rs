@@ -58,3 +58,13 @@ fn deploy_doc_is_chinese_and_covers_ipv6_http_https_and_feishu() {
     assert!(readme.contains("cargo test"));
     assert!(!readme.contains("pytest"));
 }
+
+#[test]
+fn python_backend_is_removed() {
+    let root = repo_root();
+    assert!(!root.join("server/pyproject.toml").exists());
+    assert!(!root.join("server/tvdisplay/app.py").exists());
+    assert!(!root.join("server/tests/test_admin.py").exists());
+    assert!(root.join("server/Cargo.toml").exists());
+    assert!(root.join("server/src/main.rs").exists());
+}
