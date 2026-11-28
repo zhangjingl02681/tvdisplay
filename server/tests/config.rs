@@ -107,3 +107,21 @@ fn complete_feishu_config_trims_chat_ids() {
         tvdisplay::config::FeishuMode::Disabled => panic!("expected enabled"),
     }
 }
+
+#[tokio::test]
+async fn probe_health_returns_zero_on_ok() {
+    use tokio::net::TcpListener;
+    let listener = TcpListener::bind("127.0.0.1:0").await.unwrap();
+    let port = listener.local_addr().unwrap().port();
+    let app = axum::Router::new().route("/health", axum::routing::get(|| async { axum::Json(serde_json::json!({"ok": true})) }));
+    tokio::spawn(async move { axum::serve(listener, app).await.unwrap(); });
+    let code = tvdisplay::health::probe_health("127.0.0.1", &port.to_string()).await;
+    assert_eq!(code, 0);
+}
+
+#[tokio::test]
+async fn probe_health_returns_one_when_nothing_listens() {
+    let code = tvdisplay::health::probe_health("127.0.0.1", "1").await;
+    assert_eq!(code, 1);
+}
+

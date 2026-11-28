@@ -1,8 +1,16 @@
 #[tokio::main]
 async fn main() {
     if std::env::args().nth(1).as_deref() == Some("health") {
-        eprintln!("health subcommand is not implemented yet");
-        std::process::exit(2);
+        let host = std::env::var("HOST")
+            .ok()
+            .filter(|value| !value.is_empty())
+            .unwrap_or_else(|| "::".into());
+        let port = std::env::var("PORT")
+            .ok()
+            .filter(|value| !value.is_empty())
+            .unwrap_or_else(|| "8080".into());
+        let code = tvdisplay::health::probe_health(&host, &port).await;
+        std::process::exit(code);
     }
     match tvdisplay::config::load_settings_from_env() {
         Ok(settings) => {
