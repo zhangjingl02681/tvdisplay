@@ -5,17 +5,21 @@ use crate::config::Settings;
 use crate::content::{
     normalize_text, parse_force_popup, ContentStore, ContentValidationError,
 };
-use crate::hub::TvHub;
+use crate::hub::{HubEvent, TvHub};
 use axum::body::Bytes;
+use axum::extract::ws::{CloseFrame, Message, Utf8Bytes, WebSocket, WebSocketUpgrade};
 use axum::extract::{DefaultBodyLimit, Multipart, State};
 use axum::http::{header, HeaderMap, StatusCode};
 use axum::response::{Html, IntoResponse, Redirect, Response};
 use axum::routing::{get, post};
 use axum::{Form, Json, Router};
 use axum_extra::extract::cookie::{Cookie, CookieJar, SameSite};
+use futures_util::SinkExt;
 use minijinja::{context, Environment};
 use serde::Deserialize;
 use std::sync::Arc;
+use tokio::sync::mpsc;
+use tokio::time::{timeout, Duration};
 use tracing::info;
 
 #[derive(Clone)]
@@ -59,6 +63,7 @@ pub fn router(state: AppState) -> Router {
         .route("/force-popup", post(update_force_popup))
         .route("/api/status", get(status))
         .route("/media/current", get(media))
+        .route("/ws/tv", get(tv_socket))
         .layer(DefaultBodyLimit::max(body_limit))
         .with_state(state)
 }
@@ -323,4 +328,88 @@ async fn update_force_popup(
         let _ = state.hub.push(&payload).await;
     }
     Redirect::to("/").into_response()
+}
+
+async fn tv_socket(ws: WebSocketUpgrade, State(state): State<AppState>) -> Response {
+    ws.on_upgrade(move |socket| handle_tv_socket(socket, state))
+        .into_response()
+}
+
+async fn handle_tv_socket(mut socket: WebSocket, state: AppState) {
+    let timeout_secs = state.settings.auth_timeout_seconds;
+    let first = timeout(Duration::from_secs_f64(timeout_secs), socket.recv()).await;
+    let Ok(Some(Ok(Message::Text(text)))) = first else {
+        close_with(&mut socket, 1008).await;
+        return;
+    };
+    let parsed: Result<serde_json::Value, _> = serde_json::from_str(text.as_str());
+    let authed = match parsed {
+        Ok(value) => {
+            let typ = value.get("type").and_then(serde_json::Value::as_str);
+            let password = value.get("password").and_then(serde_json::Value::as_str);
+            typ == Some("auth")
+                && password.is_some_and(|provided| {
+                    passwords_match(provided, &state.settings.admin_password)
+                })
+        }
+        Err(_) => false,
+    };
+    drop(text);
+    if !authed {
+        close_with(&mut socket, 1008).await;
+        return;
+    }
+
+    let (outgoing_tx, mut outgoing_rx) = mpsc::channel::<HubEvent>(8);
+    let (connection_id, previous) = state.hub.attach(outgoing_tx).await;
+    if let Some(previous) = previous {
+        let _ = previous.send(HubEvent::Close(4000)).await;
+    }
+    let payload = serde_json::to_string(&state.store.message()).expect("ws message");
+    if socket
+        .send(Message::Text(Utf8Bytes::from(payload)))
+        .await
+        .is_err()
+    {
+        state.hub.release(connection_id).await;
+        return;
+    }
+    info!("电视已连接");
+
+    loop {
+        tokio::select! {
+            event = outgoing_rx.recv() => {
+                match event {
+                    Some(HubEvent::Push(body)) => {
+                        if socket.send(Message::Text(Utf8Bytes::from(body))).await.is_err() {
+                            break;
+                        }
+                    }
+                    Some(HubEvent::Close(code)) => {
+                        close_with(&mut socket, code).await;
+                        break;
+                    }
+                    None => break,
+                }
+            }
+            incoming = socket.recv() => {
+                match incoming {
+                    Some(Ok(Message::Close(_))) | None => break,
+                    Some(Ok(_)) => {}
+                    Some(Err(_)) => break,
+                }
+            }
+        }
+    }
+    state.hub.release(connection_id).await;
+}
+
+async fn close_with(socket: &mut WebSocket, code: u16) {
+    let _ = socket
+        .send(Message::Close(Some(CloseFrame {
+            code,
+            reason: Utf8Bytes::default(),
+        })))
+        .await;
+    let _ = socket.close().await;
 }

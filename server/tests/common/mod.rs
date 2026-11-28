@@ -7,6 +7,7 @@ use tvdisplay::http::{build_state, router, AppState};
 
 pub const PASSWORD: &str = "unit-test-password";
 pub const JPEG: &[u8] = b"\xff\xd8\xff\xd9";
+#[allow(dead_code)]
 pub const PNG: &[u8] = b"\x89PNG\r\n\x1a\nrest-of-png";
 
 pub struct TestApp {
