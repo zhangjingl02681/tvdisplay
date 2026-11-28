@@ -5,6 +5,8 @@ use crate::config::Settings;
 use crate::content::{
     normalize_text, parse_force_popup, ContentStore, ContentValidationError,
 };
+use crate::feishu::client::FeishuApi;
+use crate::feishu::drafts::DraftStore;
 use crate::hub::{HubEvent, TvHub};
 use axum::body::Bytes;
 use axum::extract::ws::{CloseFrame, Message, Utf8Bytes, WebSocket, WebSocketUpgrade};
@@ -28,6 +30,8 @@ pub struct AppState {
     pub store: Arc<ContentStore>,
     pub hub: TvHub,
     pub templates: Environment<'static>,
+    pub drafts: Arc<tokio::sync::Mutex<DraftStore>>,
+    pub feishu_api: Option<Arc<FeishuApi>>,
 }
 
 pub fn build_state(settings: Settings) -> AppState {
@@ -37,6 +41,8 @@ pub fn build_state(settings: Settings) -> AppState {
         store,
         hub: TvHub::new(),
         templates: template_env(),
+        drafts: Arc::new(tokio::sync::Mutex::new(DraftStore::new())),
+        feishu_api: None,
     }
 }
 
