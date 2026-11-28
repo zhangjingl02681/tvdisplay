@@ -7,7 +7,7 @@
     <string name="password">管理密码</string>
     <string name="save">保存并连接</string>
     <string name="open_settings">服务器设置</string>
-    <string name="empty_content">还没有内容。在手机上打开管理页，发布一张图片。</string>
+    <string name="empty_content">还没发布。在手机上打开管理页，或在飞书群里发送图片或文字。</string>
     <string name="poster_description">当前图片</string>
     <string name="status_online">已连接</string>
     <string name="status_connecting">正在连接</string>

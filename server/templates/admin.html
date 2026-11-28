@@ -7,7 +7,7 @@
       <button class="ghost" type="submit">退出登录</button>
     </form>
   </div>
-  <p class="lede">手机上选好图片，电视上全屏显示。</p>
+  <p class="lede">手机上选好图片或文字，电视上全屏显示。</p>
 
   <section class="card">
     <div class="status-line">
@@ -28,6 +28,8 @@
         {% if content.text %}
           <p class="caption">{{ content.text }}</p>
         {% endif %}
+      {% elif content.text %}
+        <p class="caption">{{ content.text }}</p>
       {% else %}
         <p class="empty">尚未发布内容</p>
       {% endif %}
@@ -47,12 +49,12 @@
     <form method="post" action="/content" enctype="multipart/form-data">
       <label class="file">
         图片
-        <input id="image" name="image" type="file" accept="image/jpeg,image/png" required>
+        <input id="image" name="image" type="file" accept="image/jpeg,image/png">
         <span id="file-name">选择 JPEG 或 PNG</span>
       </label>
-      <p class="hint">JPEG 或 PNG，最大 10 MB。图片是必填的。</p>
+      <p class="hint">JPEG 或 PNG，最大 10 MB。图片和文字至少填写一样。</p>
       <label for="text">说明文字</label>
-      <textarea id="text" name="text" maxlength="4000" placeholder="可选。显示在图片下方。">{{ draft_text }}</textarea>
+      <textarea id="text" name="text" maxlength="4000" placeholder="可选。可以只发文字，或显示在图片下方。">{{ draft_text }}</textarea>
       <label class="check">
         <input type="checkbox" name="force_popup" value="on" {% if content.force_popup %}checked{% endif %}>
         <span>新内容到达时强制弹出</span>

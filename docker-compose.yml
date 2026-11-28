@@ -2,6 +2,9 @@
 # 不使用端口映射，也不使用任何内网穿透。
 services:
   tvdisplay:
+    # 若在 1GB 树莓派上编译 OOM，请改用在其它机器构建好的镜像名称，例如：
+    # image: tvdisplay:arm64
+    # 并注释掉 build: .
     build: .
     network_mode: host
     restart: unless-stopped

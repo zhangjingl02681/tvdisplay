@@ -47,4 +47,16 @@ class ContentMessageTest {
         assertFalse(redacted.contains(secret))
         assertTrue(redacted.contains("***"))
     }
+
+    @Test
+    fun textOnlyPublishedMessageParsesWithNullImage() {
+        val message = parseServerMessage(
+            """{"type":"content","revision":2,"text":"纯文字","force_popup":false,"image_mime":null,"image_base64":null,"updated_at":"2026-11-28T12:00:00+00:00"}""",
+        )
+        assertEquals(2L, message.revision)
+        assertEquals("纯文字", message.text)
+        assertNull(message.imageBase64)
+        assertTrue(message.isPublishedTextOnly())
+        assertFalse(message.shouldShowUnpublishedPlaceholder())
+    }
 }
